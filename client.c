@@ -32,7 +32,6 @@ int server(const char *url)
     }
 
     for (;;) {
-		
 		char *buf = NULL;
 		int bytes = nn_recv (fd, &buf, NN_MSG, 0);
 		if (bytes == ETIMEDOUT) break;

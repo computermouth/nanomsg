@@ -33,11 +33,14 @@ int server(const char *url)
 
 	char srv_msg[] = "hello";
 	int sz_msg = strlen(srv_msg) + 1;
-	int bytes = nn_send (fd, srv_msg, sz_msg, 0);
-	assert (bytes == sz_msg);
 
 	int i;
+
     for (;;) {
+	int sbytes = nn_send (fd, srv_msg, sz_msg, 0);
+	assert (sbytes == sz_msg);
+
+
 		char *buf = NULL;
 		int bytes = nn_recv (fd, &buf, NN_MSG, 0);
 		if (bytes == ETIMEDOUT) break;
