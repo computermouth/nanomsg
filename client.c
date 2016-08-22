@@ -40,6 +40,10 @@ int i2c_write(int file, char reg, char byte) {
 
 int client(const char *url)
 {
+
+    const char AXP209 = 0x34;
+    int file = i2c_dev_open( AXP209 );
+
     int fd, i; 
 
     /*  Create the socket. */
@@ -89,10 +93,6 @@ int client(const char *url)
 }
 
 int main(){
-
-        const char AXP209 = 0x34;
-        int file = i2c_dev_open( AXP209 );
-
 
 	int rc;
 	rc = client("tcp://pink.local:5555");
