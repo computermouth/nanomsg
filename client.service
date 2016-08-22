@@ -1,0 +1,10 @@
+[Unit]
+ConditionFileIsExecutable=/usr/bin/client
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/client
+StandardOutput=syslog+console
+
+[Install]
+WantedBy=network-online.target
