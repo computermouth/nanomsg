@@ -9,7 +9,36 @@
 #include <nanomsg/nn.h>
 #include <nanomsg/survey.h>
 
-int server(const char *url)
+#include <errno.h>
+#include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+int i2c_dev_open( int address ) {
+    int file;
+    if ( (file = open("/dev/i2c-0", O_RDWR)) < 0 ) {
+        printf("Failed to open the bus.");
+        printf("Error: %s\n", strerror( errno ) );
+        exit(1);
+    }
+
+    if ( ioctl(file, I2C_SLAVE_FORCE, address) < 0 ) {
+        printf("Failed to acquire bus access and/or talk to slave.\n");
+        printf("Error: %s\n", strerror( errno ) );
+        exit(1);
+    }
+    return file;
+}
+
+int i2c_write(int file, char reg, char byte) {
+    if( i2c_smbus_write_byte_data(file, reg, byte) < 0 )
+        printf("Error: %s\n", strerror( errno ) );
+    return 0;
+}
+
+int client(const char *url)
 {
     int fd, i; 
 
@@ -35,36 +64,23 @@ int server(const char *url)
 		char *buf = NULL;
 		int bytes = nn_recv (fd, &buf, NN_MSG, 0);
 		if (bytes == ETIMEDOUT) break;
+
+		if (strcmp(buf, "1")){
+			i2c_write(file, 0x93, 7);
+		}else{
+			i2c_write(file, 0x93, 0);
+		}
+
 		if (bytes >= 0)
 		{
 			nn_freemsg (buf);
-			char *d = "ohai";
-			int sz_d = strlen(d) + 1;
-			printf("sending response\n");
-			int bytes = nn_send (fd, d, sz_d, 0);
-			assert (bytes == sz_d);
+//			char *d = "ohai";
+//			int sz_d = strlen(d) + 1;
+//			printf("sending response\n");
+//			int bytes = nn_send (fd, d, sz_d, 0);
+//			assert (bytes == sz_d);
 		}
-        //~ uint8_t msg[2 * sizeof (uint32_t)];
-        //~ uint32_t secs, subs;
-        //~ int rc;
 
-        //~ secs = (uint32_t) time (NULL);
-        //~ subs = (uint32_t) nn_get_statistic (fd, NN_STAT_CURRENT_CONNECTIONS);
-
-        //~ secs = htonl (secs);
-        //~ subs = htonl (subs);
-
-        //~ memcpy (msg, &secs, sizeof (secs));
-        //~ memcpy (msg + sizeof (secs), &subs, sizeof (subs));
-
-        //~ rc = nn_send (fd, msg, sizeof (msg), 0);
-        //~ if (rc < 0) {
-            //~ /*  There are several legitimate reasons this can fail.
-                //~ We note them for debugging purposes, but then ignore
-                //~ otherwise. */
-            //~ fprintf (stderr, "nn_send: %s (ignoring)\n",
-                //~ nn_strerror (nn_errno ()));
-        //~ }
     }
 
     /* NOTREACHED */
@@ -74,8 +90,12 @@ int server(const char *url)
 
 int main(){
 
+        const char AXP209 = 0x34;
+        int file = i2c_dev_open( AXP209 );
+
+
 	int rc;
-	rc = server("ipc:///tmp/survey.ipc");
+	rc = client("tcp://pink.local:5555");
 
 	exit (rc == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
 }

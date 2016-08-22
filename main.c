@@ -31,17 +31,18 @@ int server(const char *url)
         return (-1);
     }
 
-	char srv_msg[] = "hello";
+	char srv_msg[] = "0";
 	int sz_msg = strlen(srv_msg) + 1;
 
-	int i;
-
     for (;;) {
+
 	int sbytes = nn_send (fd, srv_msg, sz_msg, 0);
 	assert (sbytes == sz_msg);
+	printf("sent %s\n", srv_msg);
 
 
-		char *buf = NULL;
+	usleep( 1000 * 250 );
+/*		char *buf = NULL;
 		int bytes = nn_recv (fd, &buf, NN_MSG, 0);
 		if (bytes == ETIMEDOUT) break;
 		if (bytes >= 0)
@@ -49,27 +50,9 @@ int server(const char *url)
 			printf ("SERVER: RECEIVED \"%s\" SURVEY RESPONSE\n", buf);
 			nn_freemsg (buf);
 		}
-        //~ uint8_t msg[2 * sizeof (uint32_t)];
-        //~ uint32_t secs, subs;
-        //~ int rc;
+*/
 
-        //~ secs = (uint32_t) time (NULL);
-        //~ subs = (uint32_t) nn_get_statistic (fd, NN_STAT_CURRENT_CONNECTIONS);
-
-        //~ secs = htonl (secs);
-        //~ subs = htonl (subs);
-
-        //~ memcpy (msg, &secs, sizeof (secs));
-        //~ memcpy (msg + sizeof (secs), &subs, sizeof (subs));
-
-        //~ rc = nn_send (fd, msg, sizeof (msg), 0);
-        //~ if (rc < 0) {
-            //~ /*  There are several legitimate reasons this can fail.
-                //~ We note them for debugging purposes, but then ignore
-                //~ otherwise. */
-            //~ fprintf (stderr, "nn_send: %s (ignoring)\n",
-                //~ nn_strerror (nn_errno ()));
-        //~ }
+	srv_msg[0] = '0' + (random() % 2);
     }
 
     /* NOTREACHED */
@@ -80,7 +63,7 @@ int server(const char *url)
 int main(){
 
 	int rc;
-	rc = server("ipc:///tmp/survey.ipc");
+	rc = server("tcp://0.0.0.0:5555");
 
 	exit (rc == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
 }
