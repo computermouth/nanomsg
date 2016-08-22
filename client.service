@@ -5,6 +5,7 @@ ConditionFileIsExecutable=/usr/bin/client
 Type=simple
 ExecStart=/usr/bin/client
 StandardOutput=syslog+console
+Restart=always
 
 [Install]
 WantedBy=network-online.target

@@ -5,6 +5,7 @@ ConditionFileIsExecutable=/usr/bin/server
 Type=simple
 ExecStart=/usr/bin/server
 StandardOutput=syslog+console
+Restart=always
 
 [Install]
 WantedBy=network-online.target
