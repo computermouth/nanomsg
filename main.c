@@ -41,7 +41,7 @@ int server(const char *url)
 	printf("sent %s\n", srv_msg);
 
 
-	usleep( 1000 * 250 );
+	usleep( 1000 * 100 );
 /*		char *buf = NULL;
 		int bytes = nn_recv (fd, &buf, NN_MSG, 0);
 		if (bytes == ETIMEDOUT) break;
